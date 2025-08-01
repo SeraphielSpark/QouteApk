@@ -4,45 +4,48 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Install system dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y python3-pip build-essential git zip unzip \
-          openjdk-17-jdk wget curl libffi-dev \
-          libssl-dev libsqlite3-dev zlib1g-dev libbz2-dev \
-          libreadline-dev liblzma-dev
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libssl-dev libffi-dev python3-dev \
+              git zip unzip openjdk-17-jdk python3-pip
+          pip install --upgrade pip
+          pip install buildozer cython
 
-    - name: Install Buildozer and Cython
-      run: |
-        python3 -m pip install --upgrade pip
-        pip install --user buildozer Cython
+      - name: Install buildozer requirements
+        run: |
+          sudo apt install -y \
+            libncurses5:i386 libstdc++6:i386 libgtk2.0-0:i386 \
+            libpangox-1.0-0:i386 libpangoxft-1.0-0:i386 \
+            libidn11:i386
 
-    - name: Add buildozer to PATH
-      run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Initialize buildozer (if .spec does not exist)
+        run: |
+          if [ ! -f buildozer.spec ]; then
+            buildozer init
+          fi
 
-    - name: Initialize Buildozer
-      run: buildozer init
+      - name: Build APK
+        run: |
+          buildozer -v android debug
 
-    - name: Build APK
-      run: buildozer -v android debug
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
-      with:
-        name: built-apk
-        path: bin/*.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: bin/*.apk
