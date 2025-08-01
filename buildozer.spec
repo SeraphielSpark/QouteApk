@@ -1,14 +1,14 @@
 [app]
-title = AndroidQuote
+title = AndroidQuoteApp
 package.name = androidquote
-package.domain = org.example
+package.domain = org.yourdomain
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
-requirements = kivy
+requirements = python3,kivy
 orientation = portrait
-fullscreen = 1
+osx.kivy_version = 2.3.0
 
 [buildozer]
 log_level = 2
-warn_on_root = 0
+warn_on_root = 1
