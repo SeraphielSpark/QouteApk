@@ -1,47 +1,91 @@
-name: Build APK with Buildozer
+name: Build Kivy Android APK
 
 on:
   push:
     branches:
-      - main
+      - main  # or your desired branch
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repo
+    - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: 3.10
 
-    - name: Install Dependencies
+    - name: Install dependencies
       run: |
         sudo apt update
-        sudo apt install -y git zip unzip openjdk-17-jdk python3-pip
-        pip install --upgrade pip setuptools wheel
-        pip install cython virtualenv buildozer
+        sudo apt install -y python3-pip zip unzip openjdk-17-jdk wget
+
+        python3 -m pip install --upgrade pip setuptools virtualenv
+
+    - name: Install Buildozer
+      run: |
+        python3 -m pip install buildozer cython
+        sudo apt install -y \
+          git-core \
+          ffmpeg \
+          libsdl2-dev \
+          libsdl2-image-dev \
+          libsdl2-mixer-dev \
+          libsdl2-ttf-dev \
+          libportmidi-dev \
+          libswscale-dev \
+          libavformat-dev \
+          libavcodec-dev \
+          zlib1g-dev \
+          libgstreamer1.0 \
+          libgstreamer1.0-dev \
+          libmtdev-dev \
+          xclip \
+          xsel \
+          libjpeg-dev \
+          libfreetype6-dev \
+          libgl1-mesa-dev \
+          libgles2-mesa-dev \
+          libsqlite3-dev \
+          libffi-dev \
+          libpng-dev \
+          libsmpeg-dev \
+          libx11-dev \
+          libxcursor-dev \
+          libxrandr-dev \
+          libxinerama-dev \
+          libxi-dev \
+          libbz2-dev \
+          libgmp-dev \
+          libssl-dev \
+          libtiff5-dev \
+          libvirt-dev \
+          libxml2-dev \
+          libxslt1-dev \
+          libpq-dev \
+          libudev-dev
 
     - name: Accept Android SDK Licenses
       run: |
         mkdir -p ~/.android
-        echo '8933bad161af4178b1185d1a37fbf41ea5269c55' > ~/.android/repositories.cfg
-        yes | sdkmanager --licenses || true
+        echo -e "\n# Auto-accepted licenses\n8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.android/repositories.cfg
 
-    - name: Initialize Buildozer
+    - name: Initialize Buildozer (only if missing)
       run: |
-        buildozer init
-        cp buildozer.spec buildozer.spec.bak
-        mv buildozer.spec.bak buildozer.spec
+        if [ ! -f buildozer.spec ]; then
+          buildozer init
+        fi
 
     - name: Build APK
-      run: buildozer -v android debug
+      run: |
+        buildozer android debug
 
-    - name: Upload APK Artifact
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: quoteapp.apk
+        name: QuoteApp-APK
         path: bin/*.apk
