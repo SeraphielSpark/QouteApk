@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK with Buildozer
 
 on:
   push:
@@ -9,40 +9,40 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
 
-    - name: Checkout code
-      uses: actions/checkout@v4
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.10"
+        python-version: '3.10'
 
     - name: Install system dependencies
       run: |
         sudo apt update
         sudo apt install -y python3-pip build-essential git zip unzip \
-          openjdk-17-jdk wget curl libncurses5 libffi-dev \
+          openjdk-17-jdk wget curl libffi-dev \
           libssl-dev libsqlite3-dev zlib1g-dev libbz2-dev \
           libreadline-dev liblzma-dev
 
-    - name: Install Buildozer
+    - name: Install Buildozer and Cython
       run: |
-        pip install --upgrade pip
-        pip install buildozer
+        python3 -m pip install --upgrade pip
+        pip install --user buildozer Cython
 
-    - name: Initialize buildozer
+    - name: Add buildozer to PATH
+      run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Initialize Buildozer
       run: buildozer init
 
-    - name: Override spec file with custom one
-      run: cp buildozer.spec ./
-
-    - name: Build the APK
-      run: buildozer android debug
+    - name: Build APK
+      run: buildozer -v android debug
 
     - name: Upload APK
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
-        name: android-quote-app-apk
+        name: built-apk
         path: bin/*.apk
