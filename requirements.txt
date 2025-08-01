@@ -1,0 +1,12 @@
+langchain
+chromadb
+pypdf
+unstructured
+pyttsx3
+speechrecognition
+keyboard
+pyautogui
+selenium
+ollama
+python-dotenv
+openai
