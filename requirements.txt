@@ -1,12 +1,4 @@
-langchain
-chromadb
-pypdf
-unstructured
-pyttsx3
-speechrecognition
-keyboard
-pyautogui
-selenium
-ollama
-python-dotenv
-openai
+kivy==2.3.0
+kivymd==1.1.1
+requests
+pillow
